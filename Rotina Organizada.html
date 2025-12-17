@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    <title>AXIOM DASHBOARD V8 - PREMIUM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script> 
+    
+    <style>
+        :root {
+            --color-primary: #BB86FC;
+            --color-secondary: #03DAC6;
+            --color-background: #0B0B0B;
+            --color-surface: #181818;
+            --color-text: #F0F0F0;
+            --color-border: #2A2A2A;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            background-image: radial-gradient(circle at 50% -20%, #1e1b2e 0%, #0b0b0b 80%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 24, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .tab-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 2px solid transparent;
+            color: #666;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .tab-button.active {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+            text-shadow: 0 0 15px rgba(187, 134, 252, 0.3);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #BB86FC 0%, #8C52FF 100%);
+            color: #000;
+            font-weight: 800;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(187, 134, 252, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .day-cell { 
+            border: 1px solid var(--color-border); 
+            height: 70px;
+            transition: all 0.2s;
+        }
+
+        .day-cell:hover { background: rgba(187, 134, 252, 0.05); }
+
+        .today { 
+            border: 2px solid var(--color-secondary) !important;
+            background: rgba(3, 218, 198, 0.05);
+        }
+
+        .capture-input {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid #333 !important;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .capture-input:focus {
+            border-color: var(--color-primary) !important;
+            outline: none;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* Scrollbar Premium */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0b0b; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- HEADER LUXO -->
+        <header class="flex flex-col md:flex-row justify-between items-end border-b border-gray-800 pb-6">
+            <div>
+                <h1 class="text-3xl md:text-5xl font-black tracking-tighter text-white">AXIOM<span class="text-purple-500">V8</span></h1>
+                <p class="text-gray-500 font-mono text-sm">SISTEMA OPERACIONAL PESSOAL</p>
+            </div>
+            <div id="live-clock" class="font-mono text-purple-400 bg-purple-900/20 px-4 py-2 rounded-full border border-purple-500/30 mt-4 md:mt-0"></div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- COLUNA ESQUERDA: NAVEGAÇÃO E CONTEÚDO (8 COLUNAS) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- NAVIGATION TABS -->
+                <nav class="flex space-x-8 border-b border-gray-800">
+                    <button id="tab-calendar" class="tab-button active py-4" onclick="showMainTab('calendar')">CALENDÁRIO</button>
+                    <button id="tab-capture" class="tab-button py-4" onclick="showMainTab('capture')">MODO CAPTURA</button>
+                    <button id="tab-stats" class="tab-button py-4" onclick="showMainTab('stats')">PERFORMANCE</button>
+                </nav>
+
+                <!-- CONTEÚDO: CALENDÁRIO -->
+                <div id="content-calendar" class="space-y-6 animate-in fade-in duration-500">
+                    <div class="glass-panel p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <button onclick="changeMonth(-1)" class="p-2 hover:bg-white/10 rounded-full transition"><i data-lucide="chevron-left"></i></button>
+                            <h2 id="current-month-year" class="text-2xl font-bold tracking-widest uppercase"></h2>
+                            <button onclick="changeMonth(1)" class="p-2 hover:bg-white/10 rounded-full transition"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 text-center text-xs font-bold text-gray-500 mb-2">
+                            <!-- JS Preenche -->
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6">
+                        <h3 class="text-xl font-bold mb-4 flex items-center text-purple-400">
+                            <i data-lucide="align-left" class="mr-2"></i> ROTEIRO DO DIA
+                            <span id="selected-date-display" class="ml-auto text-sm font-normal text-gray-500 italic"></span>
+                        </h3>
+                        <div id="day-routine-list" class="space-y-3">
+                            <p class="text-gray-600 italic">Selecione uma data para visualizar...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO: MODO CAPTURA (NEW) -->
+                <div id="content-capture" class="hidden animate-in slide-in-from-bottom-4 duration-500">
+                    <div class="glass-panel p-8">
+                        <div class="max-w-2xl mx-auto text-center space-y-6">
+                            <i data-lucide="brain-circuit" class="w-16 h-16 mx-auto text-purple-500 opacity-50"></i>
+                            <h2 class="text-3xl font-light">O que está na sua <span class="text-purple-400 font-bold">mente</span> agora?</h2>
+                            <div class="flex flex-col space-y-4">
+                                <input type="text" id="capture-note" placeholder="Digite um pensamento, ideia ou tarefa rápida..." 
+                                       class="capture-input w-full p-4 rounded-xl text-lg text-white">
+                                <button onclick="saveCapture()" class="btn-premium w-full py-4 rounded-xl">Capturar Fragmento</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-12">
+                            <h3 class="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">Inbox (Não processado)</h3>
+                            <div id="capture-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- JS Preenche -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO: STATS -->
+                <div id="content-stats" class="hidden">
+                    <div class="glass-panel p-6">
+                        <h2 class="text-2xl font-bold mb-6 text-cyan-400">ANÁLISE DE DADOS</h2>
+                        <div class="grid grid-cols-3 gap-4 mb-8">
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <p class="text-xs text-gray-500 uppercase">Eficiência</p>
+                                <p id="stats-avg-completion" class="text-3xl font-bold">0%</p>
+                            </div>
+                            <div id="stats-total-completed-box" class="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <p class="text-xs text-gray-500 uppercase">Concluídas</p>
+                                <p id="stats-total-completed" class="text-3xl font-bold">0</p>
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <p class="text-xs text-gray-500 uppercase">Dias Ativos</p>
+                                <p id="stats-usage-days" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div id="stats-daily-completion" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: FORMULÁRIOS (4 COLUNAS) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass-panel p-6 border-l-4 border-purple-500">
+                    <h2 class="text-sm font-bold uppercase tracking-widest mb-4 flex items-center">
+                        <i data-lucide="plus-circle" class="mr-2 w-4 h-4"></i> AGENDAR ATIVIDADE
+                    </h2>
+                    <form id="routine-form" class="space-y-4">
+                        <input type="hidden" id="item-id">
+                        <select id="item-preset" onchange="applyPreset()" class="capture-input w-full p-2 rounded text-sm mb-2">
+                            <option value="">-- Usar Template --</option>
+                            <option value="TAF_CORRIDA">TAF - Corrida</option>
+                            <option value="ESTUDO_BLOCO">Foco nos Estudos</option>
+                        </select>
+                        <input type="time" id="item-time" required class="capture-input w-full p-2 rounded">
+                        <input type="text" id="item-desc" placeholder="Descrição da Atividade" required class="capture-input w-full p-2 rounded">
+                        <div class="grid grid-cols-1 gap-2">
+                            <input type="text" id="item-days" placeholder="Recorrência (Seg, Ter...)" class="capture-input w-full p-2 rounded text-xs">
+                            <p class="text-center text-[10px] text-gray-600">OU</p>
+                            <input type="date" id="item-date" class="capture-input w-full p-2 rounded text-xs">
+                        </div>
+                        <button type="submit" id="submit-btn" class="btn-premium w-full py-3 rounded-lg text-sm mt-4">Integrar à Rotina</button>
+                        <button type="button" onclick="cancelEdit()" id="cancel-btn" class="hidden w-full text-xs text-gray-500 mt-2">Cancelar Edição</button>
+                    </form>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <h2 class="text-sm font-bold uppercase tracking-widest mb-4 text-yellow-500">RELATÓRIO DE FOCO</h2>
+                    <div class="space-y-2">
+                        <button onclick="generateReport('tomorrow')" class="w-full text-left p-3 hover:bg-white/5 rounded-lg border border-white/5 transition flex justify-between items-center">
+                            Amanhã <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="generateReport('week')" class="w-full text-left p-3 hover:bg-white/5 rounded-lg border border-white/5 transition flex justify-between items-center">
+                            Próxima Semana <i data-lucide="calendar" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div id="report-output" class="mt-4 text-xs text-yellow-100/60 max-h-40 overflow-y-auto font-mono p-2 bg-white/5 rounded">
+                        <p class="text-gray-600">Clique em 'Amanhã' ou 'Próxima Semana' para gerar o relatório.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGICA DE ESTADO ---
+        const STORAGE_KEY = 'axiom_v8_data';
+        const CAPTURE_KEY = 'axiom_v8_captures';
+        const LOG_KEY = 'axiom_v8_log';
+        
+        let routineData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let captureData = JSON.parse(localStorage.getItem(CAPTURE_KEY)) || [];
+        let completionLog = JSON.parse(localStorage.getItem(LOG_KEY)) || [];
+        
+        const DAYS_OF_WEEK = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDateStr = null;
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            renderCalendar(currentYear, currentMonth);
+            renderCaptures();
+            lucide.createIcons();
+            
+            // Auto-select Hoje
+            const today = formatDate(new Date());
+            showDayDetails(today);
+
+            // Listeners para exclusividade de dias OU data
+            document.getElementById('item-days').addEventListener('input', () => {
+                 if(document.getElementById('item-days').value) {
+                    document.getElementById('item-date').value = '';
+                 }
+            });
+            document.getElementById('item-date').addEventListener('input', () => {
+                 if(document.getElementById('item-date').value) {
+                    document.getElementById('item-days').value = '';
+                 }
+            });
+        });
+
+        // --- FUNÇÕES CORE ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').textContent = now.toLocaleTimeString('pt-BR', { hour12: false });
+        }
+
+        function showMainTab(tab) {
+            ['calendar', 'capture', 'stats'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if(tab === 'stats') calculateStats();
+            lucide.createIcons();
+        }
+
+        // --- MODO CAPTURA ---
+        function saveCapture() {
+            const input = document.getElementById('capture-note');
+            if(!input.value) return;
+            
+            const newCapture = {
+                id: Date.now(),
+                text: input.value,
+                date: new Date().toLocaleString('pt-BR')
+            };
+            
+            captureData.push(newCapture);
+            localStorage.setItem(CAPTURE_KEY, JSON.stringify(captureData));
+            input.value = '';
+            renderCaptures();
+        }
+
+        function renderCaptures() {
+            const container = document.getElementById('capture-list');
+            container.innerHTML = captureData.length ? '' : '<p class="text-gray-600 italic">Caixa de entrada vazia...</p>';
+            
+            captureData.forEach(cap => {
+                container.innerHTML += `
+                    <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex justify-between items-start group hover:border-purple-500/50 transition">
+                        <div>
+                            <p class="text-white font-medium">${cap.text}</p>
+                            <p class="text-[10px] text-gray-500 mt-2 font-mono">${cap.date}</p>
+                        </div>
+                        <button onclick="deleteCapture(${cap.id})" class="text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function deleteCapture(id) {
+            captureData = captureData.filter(c => c.id !== id);
+            localStorage.setItem(CAPTURE_KEY, JSON.stringify(captureData));
+            renderCaptures();
+        }
+
+        // --- CALENDÁRIO ---
+        function renderCalendar(year, month) {
+            const grid = document.getElementById('calendar-grid');
+            const date = new Date(year, month, 1);
+            const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(date);
+            document.getElementById('current-month-year').textContent = monthName;
+
+            grid.innerHTML = DAYS_OF_WEEK.map(d => `<div class="pb-2 text-gray-600 font-mono">${d}</div>`).join('');
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDay = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+
+            for (let day = 1; day <= lastDay; day++) {
+                const dateStr = formatDate(new Date(year, month, day));
+                const isToday = dateStr === formatDate(new Date());
+                const hasAct = routineData.some(item => {
+                    const dayName = DAYS_OF_WEEK[new Date(year, month, day).getDay()];
+                    const days = item.days ? item.days.split(',').map(d => d.trim()) : [];
+                    return item.date === dateStr || (days.includes(dayName));
+                });
+
+                grid.innerHTML += `
+                    <div onclick="showDayDetails('${dateStr}')" 
+                         class="day-cell flex flex-col items-center justify-center cursor-pointer rounded-lg relative ${isToday ? 'today' : ''}">
+                        <span class="text-lg font-light ${isToday ? 'text-cyan-400 font-bold' : ''}">${day}</span>
+                        ${hasAct ? '<span class="w-1 h-1 bg-purple-500 rounded-full mt-1"></span>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function showDayDetails(dateStr) {
+            selectedDateStr = dateStr;
+            const displayDate = new Date(dateStr + "T00:00:00").toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
+            document.getElementById('selected-date-display').textContent = displayDate;
+
+            const listEl = document.getElementById('day-routine-list');
+            const dayName = DAYS_OF_WEEK[new Date(dateStr + "T00:00:00").getDay()];
+            
+            const dayActivities = routineData.filter(item => {
+                const days = item.days ? item.days.split(',').map(d => d.trim()) : [];
+                return item.date === dateStr || (days.includes(dayName));
+            }).sort((a,b) => a.time.localeCompare(b.time));
+
+            listEl.innerHTML = dayActivities.length ? '' : '<p class="text-gray-600 italic p-4">Nada agendado para este dia.</p>';
+            
+            const log = completionLog.find(l => l.date === dateStr) || { completedIds: [] };
+
+            dayActivities.forEach(act => {
+                const isComp = log.completedIds.includes(act.id);
+                listEl.innerHTML += `
+                    <div class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 group">
+                        <input type="checkbox" ${isComp ? 'checked' : ''} 
+                               onchange="toggleTask('${act.id}', '${dateStr}')"
+                               class="w-5 h-5 accent-purple-500 rounded bg-transparent border-gray-700">
+                        <div class="ml-4 flex-grow ${isComp ? 'line-through opacity-30' : ''}">
+                            <span class="text-xs font-mono text-purple-400">${act.time}</span>
+                            <p class="text-white font-medium">${act.description}</p>
+                        </div>
+                        <button onclick="deleteItem('${act.id}')" class="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-400 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // --- UTILITÁRIOS ---
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if(currentMonth > 11) { currentMonth = 0; currentYear++; }
+            if(currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar(currentYear, currentMonth);
+        }
+
+        function toggleTask(id, date) {
+            let log = completionLog.find(l => l.date === date);
+            if(!log) { log = { date, completedIds: [] }; completionLog.push(log); }
+            
+            if(log.completedIds.includes(id)) {
+                log.completedIds = log.completedIds.filter(i => i !== id);
+            } else {
+                log.completedIds.push(id);
+            }
+            localStorage.setItem(LOG_KEY, JSON.stringify(completionLog));
+            showDayDetails(date);
+        }
+
+        document.getElementById('routine-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newItem = {
+                id: Date.now().toString(),
+                time: document.getElementById('item-time').value,
+                description: document.getElementById('item-desc').value,
+                days: document.getElementById('item-days').value.split(',').map(d => d.trim()).filter(d => d).join(', '),
+                date: document.getElementById('item-date').value
+            };
+            routineData.push(newItem);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(routineData));
+            e.target.reset();
+            renderCalendar(currentYear, currentMonth);
+            if(selectedDateStr) showDayDetails(selectedDateStr);
+        });
+
+        function deleteItem(id) {
+            routineData = routineData.filter(r => r.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(routineData));
+            if(selectedDateStr) showDayDetails(selectedDateStr);
+            renderCalendar(currentYear, currentMonth);
+        }
+
+        function calculateStats() {
+            const usageDays = new Set(completionLog.map(l => l.date)).size;
+            document.getElementById('stats-usage-days').textContent = usageDays;
+            
+            const totalTasks = completionLog.reduce((acc, curr) => acc + curr.completedIds.length, 0);
+            document.getElementById('stats-total-completed').textContent = totalTasks;
+        }
+
+        function applyPreset() {
+            const p = document.getElementById('item-preset').value;
+            if(p === 'TAF_CORRIDA') {
+                document.getElementById('item-desc').value = "Treino TAF - Corrida";
+                document.getElementById('item-time').value = "06:00";
+                document.getElementById('item-days').value = "Seg, Qua, Sex";
+                document.getElementById('item-date').value = ''; // Garante exclusividade
+            } else if (p === 'ESTUDO_BLOCO') {
+                document.getElementById('item-desc').value = "Bloco de Estudo Focado";
+                document.getElementById('item-time').value = "09:30";
+                document.getElementById('item-days').value = "Seg, Ter, Qua, Qui, Sex";
+                document.getElementById('item-date').value = ''; // Garante exclusividade
+            }
+        }
+        
+        // --- NOVO: GERAÇÃO DE RELATÓRIO ---
+
+        function getDayName(date) {
+            return DAYS_OF_WEEK[date.getDay()];
+        }
+        
+        function generateReport(period) {
+            const outputEl = document.getElementById('report-output');
+            let reportText = '';
+            let activitiesToDisplay = [];
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (period === 'tomorrow') {
+                // Amanhã: Apenas 1 dia (amanhã)
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const tomorrowStr = formatDate(tomorrow);
+                const tomorrowDayName = getDayName(tomorrow);
+
+                // Filtra atividades para amanhã
+                activitiesToDisplay = routineData.filter(item => {
+                    const days = item.days ? item.days.split(',').map(d => d.trim()) : [];
+                    return item.date === tomorrowStr || days.includes(tomorrowDayName);
+                });
+
+                reportText += `<span class="text-purple-400 font-bold">RELATÓRIO: AMANHÃ (${tomorrowDayName})</span>\n---\n`;
+
+            } else if (period === 'week') {
+                // Próxima Semana: 7 dias a partir de amanhã
+                reportText += `<span class="text-purple-400 font-bold">RELATÓRIO: PRÓXIMOS 7 DIAS</span>\n---\n`;
+                
+                const dayMap = {}; // Estrutura para evitar duplicatas e ordenar
+
+                for (let i = 1; i <= 7; i++) {
+                    const nextDay = new Date(today);
+                    nextDay.setDate(today.getDate() + i);
+                    const dateStr = formatDate(nextDay);
+                    const dayName = getDayName(nextDay);
+                    
+                    const activities = routineData.filter(item => {
+                        const days = item.days ? item.days.split(',').map(d => d.trim()) : [];
+                        return item.date === dateStr || days.includes(dayName);
+                    }).sort((a,b) => a.time.localeCompare(b.time));
+
+                    if (activities.length > 0) {
+                        dayMap[dateStr] = { 
+                            name: dayName, 
+                            activities: activities 
+                        };
+                    }
+                }
+                
+                // Formata o relatório semanal
+                Object.keys(dayMap).sort().forEach(dateStr => {
+                    const dayInfo = dayMap[dateStr];
+                    reportText += `\n<span class="text-white font-bold">${dayInfo.name}, ${dateStr.substring(5)}</span>\n`;
+                    dayInfo.activities.forEach(act => {
+                        reportText += `  [${act.time}] ${act.description} (${act.days ? 'Recorrente' : 'Único'})\n`;
+                    });
+                });
+
+                // Se não houver atividades para a semana
+                if (Object.keys(dayMap).length === 0) {
+                    reportText += "Nenhuma atividade agendada na rotina para os próximos 7 dias.\n";
+                }
+                
+                outputEl.innerHTML = reportText.replace(/\n/g, '<br>');
+                outputEl.scrollTop = 0;
+                return; // Encerra aqui o relatório semanal
+            }
+            
+            // Lógica de formatação para Amanhã
+            if (activitiesToDisplay.length > 0) {
+                activitiesToDisplay.sort((a,b) => a.time.localeCompare(b.time)).forEach(act => {
+                    reportText += `[${act.time}] ${act.description} (${act.days ? 'Recorrente' : 'Único'})\n`;
+                });
+            } else {
+                reportText += "Nenhuma atividade agendada para amanhã.\n";
+            }
+
+            outputEl.innerHTML = reportText.replace(/\n/g, '<br>');
+            outputEl.scrollTop = 0;
+        }
+
+    </script>
+</body>
+</html>
