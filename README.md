@@ -22,3 +22,4 @@ Análises: Monitora o desempenho e as estatísticas diárias.
 Tecnologia: HTML5, Tailwind CSS, JS (ES6+) e LocalStorage.
 Experiência do Usuário: Modo escuro e design responsivo.
 
+<img width="1359" height="681" alt="Interface" src="https://github.com/user-attachments/assets/1f527b2f-6129-4bc9-bbde-fc2c71cc8bba" />
