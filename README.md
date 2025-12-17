@@ -21,3 +21,4 @@ Lógica Inteligente: Suporta tarefas recorrentes e específicas.
 Análises: Monitora o desempenho e as estatísticas diárias.
 Tecnologia: HTML5, Tailwind CSS, JS (ES6+) e LocalStorage.
 Experiência do Usuário: Modo escuro e design responsivo.
+
